@@ -15,10 +15,6 @@ def main():
     data = get_data()
     start, end = data["fecha"].iloc[[0, -1]].dt.date
 
-    variable = st.sidebar.selectbox(
-        label="Variable", options=["num_casos", "num_hosp", "num_uci", "num_def"]
-    )
-
     break_down = st.sidebar.checkbox(label="Desglosar por")
     break_down_by = st.sidebar.radio(
         label="Desglosar por",
@@ -27,6 +23,27 @@ def main():
         disabled=not break_down,
         label_visibility="collapsed",
     )
+
+    if break_down:
+        variable = st.sidebar.selectbox(
+            label="Variable", options=["num_casos", "num_hosp", "num_uci", "num_def"]
+        )
+        data = (
+            data.groupby(["fecha", break_down_by])[variable]
+            .sum(numeric_only=False)
+            .reset_index()
+            .pivot(index="fecha", columns=break_down_by, values=variable)
+            .loc[start:end]
+        )
+    else:
+        variables = st.sidebar.multiselect(
+            label="Variable", options=["num_casos", "num_hosp", "num_uci", "num_def"]
+        )
+        if not variables:
+            st.error("Selecciona una o varias variables.")
+            st.stop()
+        data = data.groupby(["fecha"])[variables].sum(numeric_only=False).loc[start:end]
+
     chart_type = st.sidebar.selectbox(
         label="Tipo de gráfico", options=["Línea", "Área", "Barra"]
     )
@@ -38,17 +55,6 @@ def main():
         value=(start, end),
         label_visibility="collapsed",
     )
-
-    if break_down:
-        data = (
-            data.groupby(["fecha", break_down_by])[variable]
-            .sum(numeric_only=False)
-            .reset_index()
-            .pivot(index="fecha", columns=break_down_by, values=variable)
-            .loc[start:end]
-        )
-    else:
-        data = data.groupby(["fecha"])[variable].sum(numeric_only=False).loc[start:end]
 
     chart_types = {"Línea": st.line_chart, "Área": st.area_chart, "Barra": st.bar_chart}
     chart_types[chart_type](data)
