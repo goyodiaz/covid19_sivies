@@ -37,7 +37,7 @@ def main():
         )
     else:
         variables = st.sidebar.multiselect(
-            label="Variable", options=["num_casos", "num_hosp", "num_uci", "num_def"]
+            label="Variables", options=["num_casos", "num_hosp", "num_uci", "num_def"]
         )
         if not variables:
             st.error("Selecciona una o varias variables.")
