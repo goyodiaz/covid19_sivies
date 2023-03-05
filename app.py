@@ -44,8 +44,8 @@ def main():
             st.stop()
         data = data.groupby(["fecha"])[variables].sum(numeric_only=False).loc[start:end]
 
-    chart_type = st.sidebar.selectbox(
-        label="Tipo de gráfico", options=["Línea", "Área", "Barra"]
+    chart_type = st.sidebar.radio(
+        label="Tipo de gráfico", options=["Líneas", "Área", "Barras"], horizontal=True
     )
 
     start, end = st.slider(
@@ -56,7 +56,11 @@ def main():
         label_visibility="collapsed",
     )
 
-    chart_types = {"Línea": st.line_chart, "Área": st.area_chart, "Barra": st.bar_chart}
+    chart_types = {
+        "Líneas": st.line_chart,
+        "Área": st.area_chart,
+        "Barras": st.bar_chart,
+    }
     chart_types[chart_type](data)
     st.dataframe(data)
 
