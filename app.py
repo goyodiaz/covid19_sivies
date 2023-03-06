@@ -15,6 +15,14 @@ def main():
     data = get_data()
     start, end = data["fecha"].iloc[[0, -1]].dt.date
 
+    start, end = st.slider(
+        label="Intervalo",
+        min_value=start,
+        max_value=end,
+        value=(start, end),
+        label_visibility="collapsed",
+    )
+
     break_down = st.sidebar.checkbox(label="Desglosar por")
     break_down_by = st.sidebar.radio(
         label="Desglosar por",
@@ -46,14 +54,6 @@ def main():
 
     chart_type = st.sidebar.radio(
         label="Tipo de gráfico", options=["Líneas", "Área", "Barras"], horizontal=True
-    )
-
-    start, end = st.slider(
-        label="Intervalo",
-        min_value=start,
-        max_value=end,
-        value=(start, end),
-        label_visibility="collapsed",
     )
 
     chart_types = {
