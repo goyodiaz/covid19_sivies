@@ -11,8 +11,21 @@ def main():
         menu_items=None,
     )
     st.title("COVID-19 - Datos SiViES")
-    st.header("Población mayor de 60 años")
-    data = get_data()
+
+    st.sidebar.write("Población")
+    population = st.sidebar.radio(
+        label="Source",
+        options=["Todos", "> 60 años"],
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+    if population == "Todos":
+        data = get_data_all()
+    elif population == "> 60 años":
+        data = get_data_60plus()
+    else:
+        raise ValueError(f"Unknown population {population}.")
+
     start, end = data["fecha"].iloc[[0, -1]].dt.date
 
     start, end = st.slider(
@@ -66,9 +79,23 @@ def main():
 
 
 @st.cache_resource
-def get_data():
+def get_data_60plus():
     path = "https://cnecovid.isciii.es/covid19/resources/casos_hosp_uci_def_sexo_edad_provres_60_mas.csv"
     data = pd.read_csv(path)
+    data["fecha"] = pd.to_datetime(data["fecha"], format="%Y-%m-%d")
+    data["provincia_iso"] = data["provincia_iso"].astype("category")
+    data["sexo"] = data["sexo"].astype("category")
+    data["grupo_edad"] = data["grupo_edad"].astype("category")
+    return data
+
+
+@st.cache_resource
+def get_data_all():
+    path1 = "https://cnecovid.isciii.es/covid19/resources/casos_hosp_uci_def_sexo_edad_provres.csv"
+    path2 = "https://cnecovid.isciii.es/covid19/resources/hosp_uci_def_sexo_edad_provres_todas_edades.csv"
+    data1 = data = pd.read_csv(path1)
+    data2 = data = pd.read_csv(path2)
+    data = pd.concat([data1, data2])
     data["fecha"] = pd.to_datetime(data["fecha"], format="%Y-%m-%d")
     data["provincia_iso"] = data["provincia_iso"].astype("category")
     data["sexo"] = data["sexo"].astype("category")
