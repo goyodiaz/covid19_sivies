@@ -50,7 +50,9 @@ def main():
             label="Variable", options=["num_casos", "num_hosp", "num_uci", "num_def"]
         )
         data = (
-            data.groupby(["fecha", break_down_by])[variable]
+            # XXX
+            # Use observed=True to avoid deprecation warning with pandas 2.1
+            data.groupby(["fecha", break_down_by], observed=True)[variable]
             .sum(numeric_only=False)
             .reset_index()
             .pivot(index="fecha", columns=break_down_by, values=variable)
